@@ -1,14 +1,15 @@
 var coinPickupCount = 0;
 var hasKey = false;
-var level = 0; 
+var level = 0;
 
 function init(){
-  game.renderer.renderSession.roundPixels = true;
+  
 }
 
 function preload(){
-  game.load.image('background', 'images/background.png');
+  game.load.image('background', 'images/1920x1080-yellow-solid-color-background.jpg');
   game.load.json('level:1', 'data/level01.json');
+  game.load.json('level:0', 'data/level00.json');
   //spawn platform sprites
     game.load.image('ground', 'images/ground.png');
     game.load.image('grass:8x1', 'images/grass_8x1.png');
@@ -16,10 +17,9 @@ function preload(){
     game.load.image('grass:4x1', 'images/grass_4x1.png');
     game.load.image('grass:2x1', 'images/grass_2x1.png');
     game.load.image('grass:1x1', 'images/grass_1x1.png');
-    game.load.json('level:0', 'data/level00.json')
 
-    // load the hero image
-    game.load.image('hero', 'images/hero_stopped.png');
+    // load the hero image=
+    game.load.image('hero', 'images/goku (1).png');
     game.load.audio('sfx:jump', 'audio/jump.wav');
     game.load.audio('sfx:coin', 'audio/coin.wav');
     game.load.audio('sfx:stomp', 'audio/stomp.wav');
@@ -33,17 +33,20 @@ function preload(){
     game.load.audio('sfx:key', 'audio/key.wav');
     game.load.audio('sfx:door', 'audio/door.wav');
     game.load.spritesheet('icon:key', 'images/key_icon.png', 34, 30);
+
 };
 
 function create(){
   game.add.image(0, 0, 'background');
   sfxJump = game.add.audio('sfx:jump');
+
   sfxCoin = game.add.audio('sfx:coin');
   sfxStomp = game.add.audio('sfx:stomp');
-  coinIcon = game.make.image(40, 0, 'icon:coin');
   sfxKey = game.add.audio('sfx:key');
-  sfxDoor = game.add.audio('sfx:door');
-
+    sfxDoor = game.add.audio('sfx:door');
+    keyIcon = game.make.image(0, 19, 'icon:key');
+    keyIcon.anchor.set(0, 0.5);
+  coinIcon = game.make.image(40, 0, 'icon:coin');
   loadLevel(this.game.cache.getJSON('level:' + level));
   leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
     rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
@@ -52,31 +55,27 @@ function create(){
         jump();
     });
 
-    //Adding coin icon
+
     hud = game.add.group();
     hud.add(coinIcon);
     hud.position.set(10, 10);
 
+    // ? - Declare a variable 'NUMBERS_STR' and set its value as string '0123456789X '
     var NUMBERS_STR = '0123456789X ';
     coinFont = game.add.retroFont('font:numbers', 20, 26, NUMBERS_STR, 6);
+
     var coinScoreImg = game.make.image(100 + coinIcon.width, coinIcon.height / 2, coinFont);
     coinScoreImg.anchor.set(1, 0.5);
-    hud.add(coinScoreImg);
 
-    keyIcon = game.make.image(0, 19, 'icon:key');
-    keyIcon.anchor.set(0, 0.5);
-    // ...
+    hud.add(coinScoreImg);
     hud.add(keyIcon);
-    // remove the previous let coinIcon = ... line and use this one instead
-    coinIcon = game.make.image(40, 0, 'icon:coin');
 }
 
 function update(){
   handleInput();
   handleCollisions();
   moveSpider();
-    //Add the key icon
-    keyIcon.frame = hasKey ? 1 : 0;
+  keyIcon.frame = hasKey ? 1 : 0;
 }
 
 function loadLevel(data) {
@@ -89,7 +88,6 @@ function loadLevel(data) {
   enemyWalls.visible = false;
   data.platforms.forEach(spawnPlatform, this);
   // spawn hero and enemies
-  
     spawnCharacters({hero: data.hero, spiders: data.spiders});  
     spawnDoor(data.door.x, data.door.y);
     spawnKey(data.key.x, data.key.y);
@@ -111,7 +109,7 @@ function spawnPlatform(platform) {
 function spawnCharacters (data) {
     // spawn hero
     hero = game.add.sprite(data.hero.x, data.hero.y, 'hero');
-    hero.anchor.set(0.5, 0.5);
+    hero.anchor.set(0.5, 0.8);
     //Make the main character use the physics engine for movement
     game.physics.enable(hero);
     hero.body.collideWorldBounds = true;
@@ -159,7 +157,7 @@ function handleCollisions(){
    game.physics.arcade.overlap(hero, spiders, onHeroVsEnemy, null);
    game.physics.arcade.overlap(hero, key, onHeroVsKey, null);
    game.physics.arcade.overlap(hero, door, onHeroVsDoor,
-    // ignore if there is no key or the player is on air
+        // ignore if there is no key or the player is on air
         function (hero, door) {
             return hasKey && hero.body.touching.down;
         });
@@ -271,7 +269,7 @@ function onHeroVsKey(hero, key){
 function onHeroVsDoor(hero, door){
     sfxDoor.play();
     if (level === 0){
-      level = level + 1
+      level = level + 1;
     }
     else {
       level = 0;
